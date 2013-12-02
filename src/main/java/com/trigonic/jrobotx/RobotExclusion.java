@@ -16,21 +16,24 @@
 
 package com.trigonic.jrobotx;
 
+import static com.trigonic.jrobotx.Constants.HTTP;
+import static com.trigonic.jrobotx.Constants.HTTPS;
+import static com.trigonic.jrobotx.Constants.ROBOTS_TXT;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.trigonic.jrobotx.util.DefaultURLInputStreamFactory;
 import com.trigonic.jrobotx.util.URLInputStreamFactory;
 
-import org.apache.log4j.Logger;
-
-import static com.trigonic.jrobotx.Constants.*;
-
 public class RobotExclusion {
-	private static final Logger LOG = Logger.getLogger(RobotExclusion.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RobotExclusion.class);
 	
 	private static final Set<String> SUPPORTED_PROTOCOLS = new HashSet<String>(Arrays.asList(HTTP, HTTPS));
 	

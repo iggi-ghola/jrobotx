@@ -35,17 +35,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.trigonic.jrobotx.util.AbstractIterator;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.trigonic.jrobotx.util.AbstractIterator;
 
 /**
  * An {@link Iterator} over {@link Record} objects returned from a robots.txt source.  After iteration, the record that first
  * {@link Record#matches(String) matched} "*" may be retrieved using {@link #getDefaultRecord()}.
  */
 public class RecordIterator extends AbstractIterator<Record> {
-	private static final Logger LOG = Logger.getLogger(RecordIterator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RecordIterator.class);
 	
 	private BufferedReader reader;
 	private List<String> pushBack = new ArrayList<String>();

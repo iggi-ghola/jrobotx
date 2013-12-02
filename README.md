@@ -22,7 +22,7 @@ Forked to allow parsing of Googlebot-style pattern matching rules
     }
 ```
 
-    To provide a folder to use for caching robots.txt files:
+To provide a folder to use for caching robots.txt files:
     
 ```java
     import com.trigonic.jrobotx.RobotExclusion;

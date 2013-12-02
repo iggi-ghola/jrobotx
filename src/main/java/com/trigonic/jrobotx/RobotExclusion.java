@@ -20,7 +20,13 @@ import static com.trigonic.jrobotx.Constants.HTTP;
 import static com.trigonic.jrobotx.Constants.HTTPS;
 import static com.trigonic.jrobotx.Constants.ROBOTS_TXT;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,7 +43,15 @@ public class RobotExclusion {
 	
 	private static final Set<String> SUPPORTED_PROTOCOLS = new HashSet<String>(Arrays.asList(HTTP, HTTPS));
 	
+	// Milliseconds after which the cache expires
+	private static final long EXPIRE_CACHE = 604800000; // 1 week
+	
 	private URLInputStreamFactory urlInputStreamFactory;
+
+	/**
+	 * Directory in which to store cached robots.txt files.
+	 */
+	private File cacheDir;
 	
 	public RobotExclusion(URLInputStreamFactory urlInputStreamFactory) {
 		this.urlInputStreamFactory = urlInputStreamFactory;
@@ -47,6 +61,17 @@ public class RobotExclusion {
 		this(new DefaultURLInputStreamFactory());
 	}
 
+	/** Instantiate the robot parser, using the specified directory for robots.txt caching.
+	 * 
+	 * @param cacheDir
+	 */
+	public RobotExclusion(File cacheDir) {
+		this();
+		
+		if(!cacheDir.exists()) cacheDir.mkdirs();
+		this.cacheDir = cacheDir;
+	}
+	
 	/**
 	 * Get a robot exclusion {@link RecordIterator} for the server in the specified {@link URL}, or null if none is
 	 * available. If the protocol is not supported--that is, not HTTP-based--null is returned.
@@ -60,9 +85,57 @@ public class RobotExclusion {
 
 		try {
 			// TODO: this should support error conditions as described in the protocol draft
-			// TODO: use some kind of caching
 			URL robotsUrl = new URL(url, ROBOTS_TXT);
-			recordIter = new RecordIterator(urlInputStreamFactory.openStream(robotsUrl));
+			
+			// Check the cache
+			StringBuilder sb = new StringBuilder();
+			sb.append(robotsUrl.getProtocol()).append("/").append(robotsUrl.getHost());
+			if(robotsUrl.getPort() > 0) sb.append("/").append(robotsUrl.getPort());
+			sb.append(ROBOTS_TXT);
+			
+			// Use caching if it is enabled
+			if(cacheDir != null)
+			{
+				File cache = new File(cacheDir, sb.toString());
+				
+				// If the file is not cached, or the cache has expired, then cache it
+				try
+				{
+					if(!cache.exists() || System.currentTimeMillis() - cache.lastModified() > EXPIRE_CACHE)
+					{
+						BufferedReader in = null;
+						PrintWriter out = null;
+						try
+						{
+							cache.getParentFile().mkdirs();
+							out = new PrintWriter(new FileWriter(cache));
+							in = new BufferedReader(new InputStreamReader(urlInputStreamFactory.openStream(robotsUrl)));
+							String line = in.readLine();
+							while(line != null)
+							{
+								out.println(line);
+								line = in.readLine();
+							}
+						}
+						finally
+						{
+							if(out != null) out.close();
+							if(in != null) in.close();
+						}
+					}
+					
+					if(cache.exists())
+					{
+						recordIter = new RecordIterator(new FileInputStream(cache));
+					}
+				}
+				catch(IOException e)
+				{
+					LOG.error("Exception caching " + robotsUrl, e);
+				}
+			}
+			// Fall back, just try and get the file
+			if(recordIter == null) recordIter = new RecordIterator(urlInputStreamFactory.openStream(robotsUrl));
 		} catch (IOException e) {
 			LOG.info("Failed to fetch " + url, e);
 		}

@@ -29,23 +29,23 @@ import static com.trigonic.jrobotx.Constants.*;
 public class Record {
 	private Set<String> userAgents;
 	private List<String[]> rules;
-	
+
 	public Record(Set<String> userAgents, List<String[]> rules) {
 		this.userAgents = userAgents;
 		this.rules = rules;
 	}
-	
+
 	public Set<String> getUserAgents() {
 		return Collections.unmodifiableSet(userAgents);
 	}
-	
+
 	public List<String[]> getRules() {
 		return Collections.unmodifiableList(rules);
 	}
-	
+
 	public boolean matches(String userAgentString) {
 		boolean result = false;
-		
+
 		userAgentString = userAgentString.toLowerCase();
 		for (String userAgent : userAgents) {
 			if (userAgent.equals(ANY) || userAgentString.contains(userAgent)) {
@@ -53,59 +53,74 @@ public class Record {
 				break;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	public boolean allows(String path) {
 		boolean allowed = false;
 		boolean disallowed = false;
 
-		for (String[] rule : rules) {
-			if (rule[1].length() > 0 && ruleMatches(rule[1], path)) {
-                if (rule[0].equalsIgnoreCase(ALLOW)) {
-                    allowed = true;
-                } else
-                    disallowed = true;
+		String biggestMatch = null;
+
+		for (String[] rule : rules)
+		{
+			int ruleLength = rule[1].length();
+			// The biggest match should be gospel.
+			if(biggestMatch == null || biggestMatch.length() <= ruleLength)
+			{
+				if (rule[1].length() > 0 && ruleMatches(rule[1], path))
+				{
+					// This is the best match yet
+					biggestMatch = rule[1];
+					if (rule[0].equalsIgnoreCase(ALLOW))
+					{
+						allowed = true;
+					}
+					else
+					{
+						disallowed = true;
+					}
+				}
 			}
 		}
-		
+
 		return allowed || !disallowed;
 	}
-	
+
 	static boolean ruleMatches(String rule, String path) {
-        if (rule.contains("*") || rule.endsWith("$"))
-            return ruleMatchesWildcard(rule, path);
-        else
-            return ruleMatchesStandard(rule, path);
+		if (rule.contains("*") || rule.endsWith("$"))
+			return ruleMatchesWildcard(rule, path);
+		else
+			return ruleMatchesStandard(rule, path);
 	}
 
-    private static boolean ruleMatchesStandard(String rule, String path) {
-        boolean result = true;
+	private static boolean ruleMatchesStandard(String rule, String path) {
+		boolean result = true;
 
-        URLEncodeTokenizer ruleTokens = new URLEncodeTokenizer(rule, URL_ENCODING_SPECIAL_CHARS);
-        URLEncodeTokenizer pathTokens = new URLEncodeTokenizer(path, URL_ENCODING_SPECIAL_CHARS);
-        while (ruleTokens.hasNext() && pathTokens.hasNext()) {
-            Token token1 = ruleTokens.next();
-            Token token2 = pathTokens.next();
-            if (!token1.equals(token2)) {
-                result = false;
-                break;
-            }
-        }
+		URLEncodeTokenizer ruleTokens = new URLEncodeTokenizer(rule, URL_ENCODING_SPECIAL_CHARS);
+		URLEncodeTokenizer pathTokens = new URLEncodeTokenizer(path, URL_ENCODING_SPECIAL_CHARS);
+		while (ruleTokens.hasNext() && pathTokens.hasNext()) {
+			Token token1 = ruleTokens.next();
+			Token token2 = pathTokens.next();
+			if (!token1.equals(token2)) {
+				result = false;
+				break;
+			}
+		}
 
-        if (result && ruleTokens.hasNext()) {
-            result = false;
-        }
+		if (result && ruleTokens.hasNext()) {
+			result = false;
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    private static boolean ruleMatchesWildcard(String rule, String path) {
-        //if rule ends with $, matcher.find will have to match the full path
-        final String pattern = "^" + //add ^ to match from the start of the path
-                rule.replaceAll("\\*", ".*") //replace wildcards with pattern equivalent
-                        .replaceAll("\\?", "\\\\?"); //escape question marks (maybe other characters to escape)
-        return Pattern.compile(pattern).matcher(path).find();
-    }
+	private static boolean ruleMatchesWildcard(String rule, String path) {
+		//if rule ends with $, matcher.find will have to match the full path
+		final String pattern = "^" + //add ^ to match from the start of the path
+				rule.replaceAll("\\*", ".*") //replace wildcards with pattern equivalent
+				.replaceAll("\\?", "\\\\?"); //escape question marks (maybe other characters to escape)
+		return Pattern.compile(pattern).matcher(path).find();
+	}
 }

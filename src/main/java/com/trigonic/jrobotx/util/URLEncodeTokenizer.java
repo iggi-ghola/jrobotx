@@ -62,6 +62,16 @@ public class URLEncodeTokenizer extends AbstractIterator<URLEncodeTokenizer.Toke
         return Character.isDigit(ch) || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f');
     }
     
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+    	return string;
+    }
+    
     public static class Token implements Comparable<Token> {
         private char ch;
         private boolean special;
@@ -95,6 +105,16 @@ public class URLEncodeTokenizer extends AbstractIterator<URLEncodeTokenizer.Toke
                 result = CompareUtils.compare(special, other.special); 
             }
             return result;
+        }
+        
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+        	return Character.toString(ch);
         }
     }
 }

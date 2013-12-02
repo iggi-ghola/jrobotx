@@ -11,6 +11,7 @@ Forked to allow parsing of Googlebot-style pattern matching rules
 
 ## Usage
 
+```java
     import com.trigonic.jrobotx.RobotExclusion;
 
     // ...
@@ -19,4 +20,22 @@ Forked to allow parsing of Googlebot-style pattern matching rules
     if (robotExclusion.allows(url, userAgentString)) {
         // do something with url
     }
+```
+
+    To provide a folder to use for caching robots.txt files:
+    
+```java
+    import com.trigonic.jrobotx.RobotExclusion;
+
+    // ...
+    
+    File cacheDir = ...
+    
+    // ...
+    
+    RobotExclusion robotExclusion = new RobotExclusion(cacheDir);
+    if (robotExclusion.allows(url, userAgentString)) {
+        // do something with url
+    }
+```
     

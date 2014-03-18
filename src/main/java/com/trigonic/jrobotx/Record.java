@@ -29,6 +29,7 @@ import static com.trigonic.jrobotx.Constants.*;
 public class Record {
 	private Set<String> userAgents;
 	private List<String[]> rules;
+	private int crawlDelay;
 
 	public Record(Set<String> userAgents, List<String[]> rules) {
 		this.userAgents = userAgents;
@@ -122,5 +123,23 @@ public class Record {
 				rule.replaceAll("\\*", ".*") //replace wildcards with pattern equivalent
 				.replaceAll("\\?", "\\\\?"); //escape question marks (maybe other characters to escape)
 		return Pattern.compile(pattern).matcher(path).find();
+	}
+
+	/**
+	 * 
+	 * @param crawlDelay
+	 */
+	public void setCrawlDelay(int crawlDelay)
+	{
+		this.crawlDelay = crawlDelay;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getCrawlDelay()
+	{
+		return crawlDelay;
 	}
 }

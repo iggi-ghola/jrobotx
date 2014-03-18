@@ -17,6 +17,7 @@
 package com.trigonic.jrobotx;
 
 import static com.trigonic.jrobotx.Constants.ALLOW;
+import static com.trigonic.jrobotx.Constants.CRAWL_DELAY;
 import static com.trigonic.jrobotx.Constants.ANY;
 import static com.trigonic.jrobotx.Constants.COMMENT_DELIM;
 import static com.trigonic.jrobotx.Constants.DISALLOW;
@@ -93,6 +94,7 @@ public class RecordIterator extends AbstractIterator<Record> {
 				Set<String> userAgents = new HashSet<String>();
 				List<String[]> rules = new ArrayList<String[]>();
 				boolean inUserAgents = true;
+				int crawlDelay = 0;
 	
 				String line;
 				while ((line = readLine()) != null) {
@@ -109,6 +111,9 @@ public class RecordIterator extends AbstractIterator<Record> {
 					} else if (pieces[0].equalsIgnoreCase(ALLOW) || pieces[0].equalsIgnoreCase(DISALLOW)) {
 						inUserAgents = false;
 						rules.add(pieces);
+					} else if (pieces[0].equalsIgnoreCase(CRAWL_DELAY)) {
+						try {crawlDelay = Integer.parseInt(pieces[1]);}
+						catch (NumberFormatException e) {}
 					} else if (pieces[0].equalsIgnoreCase(SITEMAP)) {
 						// ignore, can't use this
 					} else {
@@ -123,6 +128,7 @@ public class RecordIterator extends AbstractIterator<Record> {
 				
 				if (userAgents.size() > 0 || rules.size() > 0) {
 				    record = new Record(userAgents, rules);
+				    record.setCrawlDelay(crawlDelay);
 				}
 			} catch (IOException e) {
 			    // TODO: how to handle this appropriately?

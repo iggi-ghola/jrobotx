@@ -23,7 +23,8 @@ public final class Constants {
     public static final String ALLOW = "Allow";
     public static final String DISALLOW = "Disallow";
     public static final String SITEMAP = "Sitemap";
-    
+    public static final String CRAWL_DELAY = "Crawl-delay";
+
     public static final String ANY = "*";
     public static final String COMMENT_DELIM = "#";
     public static final String FIELD_DELIM = ":";

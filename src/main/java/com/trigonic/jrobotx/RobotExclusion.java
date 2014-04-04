@@ -188,6 +188,7 @@ public class RobotExclusion {
 	public int getCrawlDelay(URL url, String userAgent)
 	{
 		Record record = get(url, userAgent);
+		if(record == null) return 0;
 		return record.getCrawlDelay();
 	}
 }

@@ -137,7 +137,7 @@ public class RobotExclusion {
 			// Fall back, just try and get the file
 			if(recordIter == null) recordIter = new RecordIterator(urlInputStreamFactory.openStream(robotsUrl));
 		} catch (IOException e) {
-			LOG.info("Failed to fetch " + url, e);
+			LOG.debug("Failed to fetch " + url, e);
 		}
 
 		return recordIter;

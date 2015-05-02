@@ -23,6 +23,7 @@ import static com.trigonic.jrobotx.Constants.ROBOTS_TXT;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -128,6 +129,10 @@ public class RobotExclusion {
 					{
 						recordIter = new RecordIterator(new FileInputStream(cache));
 					}
+				}
+				catch(FileNotFoundException e)
+				{
+					// This just means there is no robots.txt file
 				}
 				catch(IOException e)
 				{
